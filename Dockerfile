@@ -23,7 +23,7 @@ sudo make install
 sudo ldconfig
 
 #I would up having to modify /usr/lib64/R/etc/ldpaths to add /usr/local/lib to R_JAVA_LD_LIBRARY_PATH
-
+R -e "install.packages('ALEPlot',repos = 'https://cran.wustl.edu',dependencies = T)"
 
 
 
