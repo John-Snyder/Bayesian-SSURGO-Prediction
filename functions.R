@@ -38,12 +38,13 @@ if(is.null(res))
   res <- SDA_query(q)
 }
 
+res <- res %>% data.frame
 if(!is.null(res))
 {
   RetRow$PropUDIC <- mean(res$taxmoistscl == "Udic",na.rm=T)
-  RetRow <- cbind(RetRow, res %>% apply(2,median,na.rm=T) %>% t %>% data.frame)
+  RetRow <- cbind(RetRow, res %>% apply(2,function(x) median(as.numeric(x),na.rm = TRUE)) %>% t %>% data.frame)
 }else{
-  RetRow <- rep(NA,36)
+  RetRow <- rep(NA,50)
 }
 
 return(RetRow)

@@ -33,13 +33,19 @@ clusterEvalQ(NULL, library(soilDB))
 clusterEvalQ(NULL, library(dplyr))
 clusterExport(NULL, c('YLD_Data','DBcols','CountyList','GetDatForCounty'))
 dat2 <- parLapply(NULL, 1:nrow(YLD_Data), function(z) GetDatForCounty(z, YLD_Data=YLD_Data,DBcols=DBcols, CountyList = CountyList))
+dat2 <- dat2[which(lapply(dat2,ncol) %>% unlist == max(lapply(dat2,ncol) %>% unlist))]
 stopCluster(cl)
 
 YLD_Data <- do.call("rbind", dat2) 
 Sys.time() - start
 
+YLD_Data %>% 
+  group_by(State) %>% 
+  summarise(Frequency = mean(ph1to1h2o_r)) %>% View
+#
+
 YLD_Data <- apply(YLD_Data,2,function(x) as.numeric(as.character(x)))
-keep <- !apply(YLD_Data,2,function(x) sum(is.na(x))==length(x))
+keep <- !apply(YLD_Data,2,function(x) sum(is.na(x))>.5*length(x))
 YLD_Data <- YLD_Data[,keep]
 YLD_Data <- YLD_Data %>% data.frame %>% dplyr::select(-c("Year","State.ANSI","Ag.District.Code","County.ANSI","watershed_code" )) %>%
   filter(!is.na(Value))
@@ -48,19 +54,18 @@ X.BART <- YLD_Data  %>% dplyr::select(-"Value") %>%  select_if(is.numeric)
 Y.BART <- YLD_Data  %>% dplyr::select("Value") %>% unlist
 
 ##build BART regression model
-bart_machine = bartMachine(X.BART , Y.BART, num_trees = 200, num_burn_in = 500,
-                           num_iterations_after_burn_in = 1000, use_missing_data = TRUE)
+bart_machine = bartMachine(X.BART , Y.BART, num_trees = 50, num_burn_in = 1000,
+                           num_iterations_after_burn_in = 3000, use_missing_data = TRUE)
 summary(bart_machine)
+investigate_var_importance(bart_machine)
 
-ARR <- bartMachineArr(bart_machine, R = 10)
+#ARR <- bartMachineArr(bart_machine, R = 10)
 
-ModelDat <- cbind(Y.fin,X.fin) %>% na.omit
+X.ALE <- X.BART  %>% na.omit
 
-X.ALE <- ModelDat %>% select(-Y.fin)
-Y.ALE <- ModelDat %>% select(Y.fin)
-
-i<-1
-ALEPlot(X = X.ALE, X.model = bart_machine, pred.fun = PostPredFun, J=3, K = 100, NA.plot = TRUE)
+X.ALE %>% names
+X.ALE[,11] %>% hist
+ALEPlot(X = X.ALE, X.model = bart_machine, pred.fun = PostPredFun, J=11, K = 100, NA.plot = TRUE)
 
 aac <- bart_machine_get_posterior(bart_machine,new_data = X.ALE)$y_hat_posterior_samples
 
