@@ -1,7 +1,7 @@
 # sudo yum install libcurl-devel openssl-devel libxml2-devel udunits2-devel
 #install.packages(c("httr","jsonlite"))
 
-BartMemoryInGB <- 52
+BartMemoryInGB <- 30
 MemToJavaParam <- paste0("-Xmx",BartMemoryInGB,"g")
 options(java.parameters = MemToJavaParam)
 library(bartMachine) 
