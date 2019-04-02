@@ -12,7 +12,7 @@ library(soilDB)
 library(dplyr)
 library(ALEPlot)
 
-YLD_Data <- read.csv("~/CornYLD_County_2015to2018.csv")
+YLD_Data <- read.csv("CornYLD_County_2015to2018.csv")
 YLD_Data <- YLD_Data %>% filter(Year==2018, !grepl(pattern = "OTHER",YLD_Data$County))
 CountyList <- paste0(YLD_Data$County," county, ",YLD_Data$State) %>% tolower
 
