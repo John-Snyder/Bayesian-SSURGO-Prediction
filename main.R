@@ -41,7 +41,7 @@ Sys.time() - start
 
 YLD_Data %>% 
   group_by(State) %>% 
-  summarise(Frequency = mean(ph1to1h2o_r)) %>% View
+  summarise(Frequency = mean(ph1to1h2o_r)) %>% View~
 #
 
 YLD_Data <- apply(YLD_Data,2,function(x) as.numeric(as.character(x)))
